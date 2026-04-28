@@ -18,6 +18,7 @@ from sqlalchemy import select
 from app.core.dependencies import CurrentUser, DBSession, require_org_member
 from app.models.org import OrgMember, Organisation
 from app.models.user import User
+from app.services.seed_coa import seed_chart_of_accounts
 from app.schemas.org import (
     InviteMemberRequest,
     MemberResponse,
@@ -49,6 +50,10 @@ async def create_org(payload: OrgCreateRequest, user: CurrentUser, db: DBSession
     db.add(member)
     await db.commit()
     await db.refresh(org)
+
+    # Seed default Pakistani SME Chart of Accounts
+    await seed_chart_of_accounts(db, org.id)
+
     return org
 
 

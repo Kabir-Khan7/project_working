@@ -11,6 +11,7 @@ alembic==1.14.0
 # ── Auth & Security ───────────────────────────────────────────
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
 cryptography==43.0.3
 
 # ── Config ────────────────────────────────────────────────────
@@ -18,6 +19,12 @@ pydantic==2.10.2
 pydantic-settings==2.6.1
 pydantic[email]==2.10.2
 email-validator==2.2.0
+
+# ── Data parsing (M2 Ingestion) ───────────────────────────────
+pandas==2.2.3
+openpyxl==3.1.5
+python-magic==0.4.27          # MIME detection
+chardet==5.2.0                # encoding detection
 
 # ── Dev / Testing ─────────────────────────────────────────────
 pytest==8.3.4
