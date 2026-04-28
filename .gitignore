@@ -1,0 +1,39 @@
+# ── OS / Editor ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# ── Secrets ──────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ── Build artifacts ──────────────────────────────────────────
+dist/
+build/
+*.log
+
+# ── Loose files outside roohullah/ (keep repo clean) ─────────
+*.pdf
+*.docx
+*.csv
+*.ipynb
+make_pdf.py
+Untitled*.ipynb
