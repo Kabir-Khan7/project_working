@@ -24,6 +24,7 @@ from app.models.transaction import Transaction
 from app.services.parser import (
     ParserError, UnsupportedFormatError, iter_rows, parse_file,
 )
+from app.services.pii_detector import mask_row, scan_dataframe, scan_row
 
 
 class IngestionResult:
@@ -102,15 +103,50 @@ async def ingest_file(
 
     job.rows_total = len(df)
 
-    # ── 4. Persist transactions (with row-level dedupe) ───────────────────────
+    # ── 4. Privacy Firewall (M13) — scan entire DataFrame for PII ────────────
+    #
+    # Why scan first, before persisting?
+    # We need aggregate stats at the job level (e.g. "12 rows had phone
+    # numbers") so we scan the whole DataFrame in one pass.
+    # Then at row level, we mask PII before writing to DB.
+    #
+    pii_summary = scan_dataframe(df)
+    job.pii_summary = pii_summary
+
+    if pii_summary["rows_with_pii"] > 0:
+        warnings.append(
+            f"Privacy Firewall: {pii_summary['rows_with_pii']} row(s) contained "
+            f"PII ({', '.join(pii_summary['pii_types_detected'])}). "
+            f"Sensitive values have been masked before storage."
+        )
+
+    # ── 5. Persist transactions (with row-level dedupe + PII masking) ─────────
     seen_hashes: set[str] = set()
     imported = skipped = failed = 0
 
     for parsed in iter_rows(df):
         try:
+            # M13: scan this row, then mask PII fields before hashing/storing
+            row_dict = {
+                "description": parsed.description,
+                "party_name":  parsed.party_name,
+                "reference":   parsed.reference,
+            }
+            row_scan = scan_row(row_dict)
+            if row_scan.has_pii:
+                masked = mask_row(row_dict, row_scan)
+                # Replace ParsedRow fields with masked versions
+                description = masked["description"]
+                party_name  = masked["party_name"]
+                reference   = masked["reference"]
+            else:
+                description = parsed.description
+                party_name  = parsed.party_name
+                reference   = parsed.reference
+
             row_hash = _row_hash(
-                parsed.txn_date, parsed.description, parsed.amount,
-                parsed.party_name, parsed.reference,
+                parsed.txn_date, description, parsed.amount,
+                party_name, reference,
             )
 
             # In-batch dedupe
@@ -135,9 +171,9 @@ async def ingest_file(
                 ingestion_job_id=job.id,
                 source_row_hash=row_hash,
                 txn_date=parsed.txn_date.date(),
-                description=parsed.description,
-                party_name=parsed.party_name,
-                reference=parsed.reference,
+                description=description,
+                party_name=party_name,
+                reference=reference,
                 amount=parsed.amount,
                 currency=parsed.currency,
                 direction=parsed.direction,

@@ -7,7 +7,7 @@ Unit tests for /api/v1/auth/* endpoints.
 import pytest
 
 
-pytestmark = pytest.mark.asyncio
+pytestmark = pytest.mark.asyncio(loop_scope="session")
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

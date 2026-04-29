@@ -6,7 +6,7 @@ Unit tests for /api/v1/orgs/* endpoints.
 
 import pytest
 
-pytestmark = pytest.mark.asyncio
+pytestmark = pytest.mark.asyncio(loop_scope="session")
 
 
 USER_A = {

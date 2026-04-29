@@ -9,7 +9,7 @@ import io
 import pandas as pd
 import pytest
 
-pytestmark = pytest.mark.asyncio
+pytestmark = pytest.mark.asyncio(loop_scope="session")
 
 
 USER = {

@@ -186,8 +186,9 @@ def _normalise(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
         )
         df["amount"] = df["amount"].abs()
 
-    # 5. Date parsing
-    df["txn_date"] = pd.to_datetime(df["txn_date"], errors="coerce", dayfirst=True)
+    # 5. Date parsing — try ISO (YYYY-MM-DD) first, then day-first (DD/MM/YYYY)
+    #    dayfirst=False avoids a pandas UserWarning when dates are already ISO.
+    df["txn_date"] = pd.to_datetime(df["txn_date"], errors="coerce", dayfirst=False)
 
     # 6. Drop unusable rows
     before = len(df)

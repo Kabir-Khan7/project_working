@@ -5,9 +5,24 @@ Pydantic v2 schemas for ingestion endpoints.
 """
 
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
+
+
+class PIISummary(BaseModel):
+    """
+    Privacy Firewall (M13) scan results for an ingestion job.
+
+    These are AGGREGATE statistics only — no raw PII values are ever
+    returned through the API. The frontend can use this to show
+    a privacy badge like "✅ No PII detected" or "⚠ 3 rows masked".
+    """
+    total_rows_scanned: int = 0
+    rows_with_pii: int = 0
+    pii_percentage: float = 0.0
+    pii_types_detected: List[str] = []
+    flagged_columns: List[str] = []
 
 
 class IngestionJobResponse(BaseModel):
@@ -26,6 +41,7 @@ class IngestionJobResponse(BaseModel):
     completed_at: Optional[datetime]
     error_message: Optional[str]
     created_at: datetime
+    pii_summary: Optional[PIISummary] = None   # M13: Privacy Firewall report
 
     model_config = {"from_attributes": True}
 

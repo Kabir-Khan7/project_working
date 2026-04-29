@@ -12,7 +12,7 @@ Why we track jobs:
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin, UUIDMixin
@@ -56,6 +56,12 @@ class IngestionJob(Base, UUIDMixin, TimestampMixin):
     )
 
     error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # ── Privacy Firewall (M13) ────────────────────────────────────────────────
+    # JSON summary of PII detected during ingestion.
+    # Example: {"rows_with_pii": 3, "pii_types_detected": ["PHONE", "CNIC"], ...}
+    # Raw PII values are NEVER stored here — only aggregate metadata.
+    pii_summary: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
 
     # ── Relationships ─────────────────────────────────────────────────────────
     transactions: Mapped[List["Transaction"]] = relationship(  # noqa: F821
