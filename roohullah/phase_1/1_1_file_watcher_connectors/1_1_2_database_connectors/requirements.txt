@@ -1,0 +1,6 @@
+# Dependencies for 1.1.2 Database Connectors
+pandas==2.2.3
+sqlalchemy==2.0.36
+# Optional (install as needed):
+# psycopg2-binary   # for PostgreSQL
+# pymysql            # for MySQL

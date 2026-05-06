@@ -1,0 +1,6 @@
+# Dependencies for 1.1.1 Multi-Format Data Support
+pandas==2.2.3
+openpyxl==3.1.5
+chardet==5.2.0
+# Future: tesseract + pdf2image for PDF OCR
+# Future: requests for JSON/API ingestion
